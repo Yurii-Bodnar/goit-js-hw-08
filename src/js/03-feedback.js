@@ -1,43 +1,48 @@
 import throttle from 'lodash.throttle';
-const STORAGE_KEY_EMAIL = "feedback-form-state-email";
-const STORAGE_KEY_TEXTARIA = "feedback-form-state-textaria";
+const STORAGE_KEY = "feedback-form-state";
 
-const EmailinputRef = document.querySelector("input");
+
+const EmailinputRef = document.querySelector("[name='email']");
 const feedbackFormRef = document.querySelector(".feedback-form");
-const textareaRef = document.querySelector("textarea")
+const textareaRef = document.querySelector("[name='message']")
 
 feedbackFormRef.addEventListener("submit", onFormSubmit);
-textareaRef.addEventListener("input", throttle(onInputTextaria, 500));
-EmailinputRef.addEventListener("input", throttle(onInputEmail, 500));
+feedbackFormRef.addEventListener("input", throttle(onInput, 500));
 
-populateInput(); 
+let formData = {
+    
+}
+
+
+
 
 function onFormSubmit(e) {
     e.preventDefault();
     
-    console.log(EmailinputRef.value);
-    console.log(textareaRef.value);
+    if(EmailinputRef.value.trim() !== '' && textareaRef.value.trim() !== '')
     
-    e.currentTarget.reset();
-    localStorage.removeItem(STORAGE_KEY_EMAIL);
-    localStorage.removeItem(STORAGE_KEY_TEXTARIA);
+    feedbackFormRef.reset();
+    localStorage.removeItem(STORAGE_KEY);
 
 }
-function onInputEmail(e) {
-    const massage = e.target.value;
-    localStorage.setItem(STORAGE_KEY_EMAIL, massage)
+
+
+function onInput(e) {
+     formData = {
+    email: EmailinputRef.value,
+    message: textareaRef.value,
+  };
+
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(formData))
 }
-function onInputTextaria(e) {
-    const massage = e.target.value;
-    localStorage.setItem(STORAGE_KEY_TEXTARIA, massage)
+
+function getFormValue(e) {
+    let saveFitback = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    console.log(saveFitback);
+    if (saveFitback) {
+        EmailinputRef.value = saveFitback.email
+        textareaRef.value = saveFitback.message
+    }
+    formData = saveFitback
 }
-function populateInput(e) {
-    const saveMassageEmail = localStorage.getItem(STORAGE_KEY_EMAIL);
-        if (saveMassageEmail) { 
-        EmailinputRef.value = saveMassageEmail;
-    };
-    const saveMassageTextaria = localStorage.getItem(STORAGE_KEY_TEXTARIA);
-    if (saveMassageTextaria) {
-        textareaRef.value = saveMassageTextaria;
-        }
-}
+getFormValue()
